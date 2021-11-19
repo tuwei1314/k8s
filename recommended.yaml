@@ -269,7 +269,7 @@ spec:
       labels:
         k8s-app: dashboard-metrics-scraper
       annotations:
-        seccomp.security.alpha.kubernetes.io/pod: 'runtime/default'
+        seccompProfile.security.alpha.kubernetes.io/pod: 'runtime/default'
     spec:
       containers:
         - name: dashboard-metrics-scraper
