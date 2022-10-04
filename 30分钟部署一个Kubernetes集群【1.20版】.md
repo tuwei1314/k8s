@@ -93,7 +93,7 @@ EOF
 由于版本更新频繁，这里指定版本号部署：
 
 
-yum install -y kubelet-1.20.0 kubeadm-1.20.0 kubectl-1.20.0
+yum install -y kubelet-1.20.6 kubeadm-1.20.6 kubectl-1.20.6
 systemctl enable kubelet
 
 
@@ -103,9 +103,9 @@ systemctl enable kubelet
 
 ```
 $ kubeadm init \
-  --apiserver-advertise-address=192.168.67.40 \
+  --apiserver-advertise-address=192.168.137.20 \
   --image-repository registry.aliyuncs.com/google_containers \
-  --kubernetes-version v1.20.0 \
+  --kubernetes-version v1.20.6 \
   --service-cidr=10.1.0.0/16 \
   --pod-network-cidr=10.244.0.0/16
 ```
@@ -180,9 +180,19 @@ kubectl describe secrets -n kube-system $(kubectl -n kube-system get secret | aw
 
 10.  k8s 命令自动补全 
 yum install -y bash-completion
-source /usr/share/bash-completion/bash_completion
-source <(kubectl completion bash)
-echo "source <(kubectl completion bash)" >> ~/.bashrc
+sudo source /usr/share/bash-completion/bash_completion
+sudo source <(kubectl completion bash)
+sudo echo "source <(kubectl completion bash)" >> ~/.bashrc
 安装k8s 1.20 安装nfs插件实现pv自动供给，
 unexpected error getting claim reference: selfLink was empty, can't make reference 导致pvc无法绑定挂载
 etc/kubernetes/manifests/kube-apiserver.yaml 添加"--feature-gates=RemoveSelfLink=false"
+
+
+创建kubeconfig登陆dashboard
+kubectl get secrets -n kube-system |grep admin-token
+DASH_TOCKEN=$(kubectl get secrets admin-token-vtknp -n kube-system -o jsonpath={.data.token} |base64 -d)
+其中admin-token-vtknp为secret名称
+ kubectl config set-cluster kubernetes --server=https://192.168.10.20:6443 --kubeconfig=./dashbord-admin.conf
+ kubectl config set-credentials kubernetes-dashboard --token=$DASH_TOCKEN --kubeconfig=./dashbord-admin.conf
+ kubectl config set-context kube-system@kubernetes --cluster=kubernetes --user=kubernetes-dashboard --kubeconfig=./dashbord-admin.conf
+ kubectl config use-context kube-system@kubernetes --kubeconfig=./dashbord-admin.conf
